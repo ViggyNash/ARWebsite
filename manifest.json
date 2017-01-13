@@ -1,0 +1,6 @@
+{
+  "name": "AR_Website",
+  "short_name": "AR_Website",
+  "start_url": "/",
+  "display": "standalone"
+}
