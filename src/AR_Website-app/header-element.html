@@ -1,0 +1,46 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="stylesheet" href="header-element.css">
+
+<dom-module id="header-element">
+  <template>
+	  <style>
+	 	 :host  {
+				display: block;
+				padding: 20px 0;
+				padding-left: 30px;
+				width: 100%;
+				background-color: rgb(220, 60, 50);
+			}
+
+			p {
+				margin: 0;
+				font-family: Verdana, Geneva, sans-serif;
+				font-size: 30px;
+				animation: title-fadein 1s;
+				animation-fill-mode: forwards;
+			}
+
+			@keyframes title-fadein {
+				from {
+					text-shadow: none;
+					opacity:0;
+				}
+
+				to{
+					text-shadow: 0 0 2px black;
+					opacity:1;
+				}
+			}
+	  </style>
+
+  		<p>The Amateur Review</p>
+  </template>
+
+  <script>
+	Polymer({
+	  is: "header-element",
+
+	})
+  </script>
+</dom-module>
