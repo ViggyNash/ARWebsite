@@ -1,13 +1,28 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="header-element.html">
 
 <dom-module id="AR_Website-app">
   <template>
     <style>
-      :host {
-        display: block;
-      }
+    :host{
+      
+    }
+
+    section {
+      width: 100%;
+      height: 30px;
+      background-color: yellow;
+      font-size: 0;
+    }
+
     </style>
-    <h2>Hello [[prop1]]</h2>
+
+    <header-element></header-element>
+    <section>
+      <div class="left-banner"></div>
+      <content-element></content-element>
+      <div class="right-banner"></div>
+    </section>
   </template>
 
   <script>
