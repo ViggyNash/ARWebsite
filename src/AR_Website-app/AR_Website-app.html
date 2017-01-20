@@ -1,6 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="header-element.html">
 
+<link rel="import" href="../../bower-components/iron-ajax/iron-ajax.html">
+
 <dom-module id="AR_Website-app">
   <template>
     <style>
@@ -8,35 +10,46 @@
       
     }
 
-    section {
-      width: 100%;
-      height: 30px;
-      background-color: yellow;
-      font-size: 0;
-    }
-
     </style>
 
     <header-element></header-element>
     <section>
-      <div class="left-banner"></div>
-      <content-element></content-element>
-      <div class="right-banner"></div>
+      <div id="left-banner">
+        
+      </div>
+      <iron-ajax auto url="[[content]]" handle-as="text" lastResponse="{{response}}"></iron-ajax>
+      <div id="content">
+
+      </div>
+      <div id="right-banner">
+        
+      </div>
     </section>
   </template>
 
   <script>
+
     Polymer({
 
       is: 'AR_Website-app',
 
       properties: {
-        prop1: {
-          type: String,
-          value: 'AR_Website-app',
-        },
+        content: "/src/AR_Website-app/test.txt"
       },
 
+      attached: function (){
+        console.log(this.response)
+        var div = document.createElement('div')
+        div.innerHTML = this.response
+        var content = div.firstChild
+        this.$$('#content').appendChild(content)
+      },
+
+      applyContent: function(data) {
+        div.innerHTML = this.response
+        var content = div.firstChild
+        this.$$('#content').appendChild(content)
+      }
     });
   </script>
 </dom-module>
