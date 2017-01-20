@@ -1,30 +1,96 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="header-element.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
-<link rel="import" href="../../bower-components/iron-ajax/iron-ajax.html">
+<link rel="import" href="header-element.html">
 
 <dom-module id="AR_Website-app">
   <template>
     <style>
-    :host{
-      
-    }
+      /*header*/
+      header {
+        display: block;
+        padding: 20px 0;
+        padding-left: 30px;
+        background-color: rgb(220, 60, 50);
+      }
+
+      p {
+        margin: 0;
+        font-family: Verdana, Geneva, sans-serif;
+        font-size: 30px;
+        animation: title-fadein 1s;
+        animation-fill-mode: forwards;
+      }
+
+      @keyframes title-fadein {
+        from {
+          text-shadow: none;
+          opacity:0;
+        }
+
+        to{
+          text-shadow: 0 0 2px black;
+          opacity:1;
+        }
+      }
+
+      /*page nav buttons*/
+      #back-button {
+        float: left;
+        cursor: pointer;
+      }
+      #foreward-button {
+        float: right;
+        cursor: pointer;
+      }
+
+      /*content*/
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-height: calc(100vw - 110px);
+      }
+
+      table td {
+        vertical-align: top;
+        padding: 0;
+      }
+
+      table td:nth-child(1) {
+        background-color: blue;
+      }
+
+      table td:nth-child(2) {
+        background-color: green;
+        padding: 10px;
+      }
+
+      table td:nth-child(3) {
+        background-color: red;
+      }
 
     </style>
 
-    <header-element></header-element>
-    <section>
-      <div id="left-banner">
-        
-      </div>
-      <iron-ajax auto url="[[content]]" handle-as="text" lastResponse="{{response}}"></iron-ajax>
-      <div id="content">
+    <iron-ajax url="{{file}}" handle-as="text" on-response="handleRequest"></iron-ajax>
 
-      </div>
-      <div id="right-banner">
-        
-      </div>
-    </section>
+    <header><p>The Amateur Review</p></header>
+    <table>
+      <tr>
+        <td width="10%"><div id="left-banner">
+          
+        </div></td>
+        <td width="80%">
+          <a id="back-button" href="{{previous}}">Back</a>
+          <a id="foreward-button" href="{{next}}">Foreward</a>
+          <div id="content">
+
+          </div>
+        </td>
+        <td width="10%"><div id="right-banner">
+          
+        </div></td>
+      </tr>
+    </table>
   </template>
 
   <script>
@@ -33,22 +99,37 @@
 
       is: 'AR_Website-app',
 
-      properties: {
-        content: "/src/AR_Website-app/test.txt"
+      ready: function (){
+        this.file = "/src/AR_Website-app/test.txt"
+        this.previous = this.file
+        this.next = this.file
+        this.$$('iron-ajax').generateRequest();
       },
 
-      attached: function (){
-        console.log(this.response)
+      handleRequest: function(event) {
+        //Remove existing html snippet
+        while (this.$$('#content *') != null){
+          this.$$('#content').removeChild(this.$$('#content *'))
+        }
+        //Create new html code from received text
         var div = document.createElement('div')
-        div.innerHTML = this.response
-        var content = div.firstChild
-        this.$$('#content').appendChild(content)
+        div.innerHTML = event.detail.response
+        for (x = 0; x < div.childNodes.length; x++){
+          var content = div.childNodes[x]
+          this.$$('#content').appendChild(content)
+        }
+        //Add event handlers for links
+        this.listen(this.$$('#content-link'), 'tap', 'handleTap')
       },
 
-      applyContent: function(data) {
-        div.innerHTML = this.response
-        var content = div.firstChild
-        this.$$('#content').appendChild(content)
+      handleTap: function(event) {
+        //Cancel page load from link
+        console.log("blah")
+        event.preventDefault();
+        //Request new html snippet
+        this.previous = this.file
+        this.file = this.$$('#content-link').href
+        this.$$('iron-ajax').generateRequest();
       }
     });
   </script>
