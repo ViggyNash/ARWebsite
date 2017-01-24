@@ -1,5 +1,0 @@
-<h1>Title header</h1>
-
-<p>Here's a bunch of words and this one's <b>special</b></p>
-
-<a id="content-link" href="/src/AR_Website-app/test2.txt" on-tap="handleTap">link to another article</a>

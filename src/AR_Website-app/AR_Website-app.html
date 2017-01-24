@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-
-<link rel="import" href="header-element.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/app-route/app-*">
 
 <dom-module id="AR_Website-app">
   <template>
@@ -34,16 +34,6 @@
         }
       }
 
-      /*page nav buttons*/
-      #back-button {
-        float: left;
-        cursor: pointer;
-      }
-      #foreward-button {
-        float: right;
-        cursor: pointer;
-      }
-
       /*content*/
       table {
         border-collapse: collapse;
@@ -68,20 +58,25 @@
       table td:nth-child(3) {
         background-color: red;
       }
-
     </style>
 
-    <iron-ajax url="{{file}}" handle-as="text" on-response="handleRequest"></iron-ajax>
+    <app-location route="{{route}}"></app-location>
+    <app-route 
+      route="{{route}}" 
+      pattern="/:content" 
+      data="{{routeData}}" 
+      tail="{{subroute}}">
+    </app-route>
 
-    <header><p>The Amateur Review</p></header>
+    <iron-ajax url="{{path}}" handle-as="text" on-response="handleRequest"></iron-ajax>
+
+    <header><p>The Title</p></header>
     <table>
       <tr>
         <td width="10%"><div id="left-banner">
           
         </div></td>
         <td width="80%">
-          <a id="back-button" href="{{previous}}">Back</a>
-          <a id="foreward-button" href="{{next}}">Foreward</a>
           <div id="content">
 
           </div>
@@ -99,19 +94,35 @@
 
       is: 'AR_Website-app',
 
-      ready: function (){
-        this.file = "/src/AR_Website-app/test.txt"
-        this.previous = this.file
-        this.next = this.file
+      observers: [
+        '_routeChanged(routeData.content)'
+      ],
+
+      attached: function (){
+        this.route = "/content/landing"
+        this._routeChanged("landing")
+        console.log("Page loaded.")
+        //this.$$('iron-ajax').generateRequest();
+      },
+
+      _routeChanged: function(route) {
+        console.log("new route "+this.route+", sending request")
+        this.path = this.route+".html"
+        console.log(this.path)
         this.$$('iron-ajax').generateRequest();
+
+        //var resolvedPageUrl = this.resolveUrl(route+".html");
+        //this.importHref(resolvedPageUrl, null, "/content/landing.html", true);
       },
 
       handleRequest: function(event) {
         //Remove existing html snippet
+        console.log("handling request")
         while (this.$$('#content *') != null){
           this.$$('#content').removeChild(this.$$('#content *'))
         }
         //Create new html code from received text
+        console.log(event.detail.response)
         var div = document.createElement('div')
         div.innerHTML = event.detail.response
         for (x = 0; x < div.childNodes.length; x++){
@@ -119,17 +130,16 @@
           this.$$('#content').appendChild(content)
         }
         //Add event handlers for links
-        this.listen(this.$$('#content-link'), 'tap', 'handleTap')
+        //this.listen(this.$$('#content-link'), 'tap', 'handleTap')
       },
 
       handleTap: function(event) {
         //Cancel page load from link
-        console.log("blah")
-        event.preventDefault();
+        //event.preventDefault();
         //Request new html snippet
-        this.previous = this.file
-        this.file = this.$$('#content-link').href
-        this.$$('iron-ajax').generateRequest();
+        console.log("Loading "+this.$$('#internal-link').href)
+        this.route = this.$$('#internal-link').href
+        //this.$$('iron-ajax').generateRequest();
       }
     });
   </script>
