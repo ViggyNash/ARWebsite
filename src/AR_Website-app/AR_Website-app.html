@@ -1,10 +1,11 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../../bower_components/app-route/app-*">
+<link rel='import' href='../../bower_components/polymer/polymer.html'>
+<link rel='import' href='../../bower_components/app-route/app-location.html'>
+<link rel='import' href='../../bower_components/app-route/app-route.html'>
+<link rel='import' href='../../bower_components/iron-ajax/iron-ajax.html'>
 
-<dom-module id="AR_Website-app">
+<dom-module id='AR_Website-app'>
   <template>
+
     <style>
       /*header*/
       header {
@@ -14,7 +15,7 @@
         background-color: rgb(220, 60, 50);
       }
 
-      p {
+      header p {
         margin: 0;
         font-family: Verdana, Geneva, sans-serif;
         font-size: 30px;
@@ -38,7 +39,7 @@
       table {
         border-collapse: collapse;
         width: 100%;
-        min-height: calc(100vw - 110px);
+        min-height: calc(100vh - 76px);
       }
 
       table td {
@@ -48,6 +49,7 @@
 
       table td:nth-child(1) {
         background-color: blue;
+        min-width: 100px;
       }
 
       table td:nth-child(2) {
@@ -57,90 +59,98 @@
 
       table td:nth-child(3) {
         background-color: red;
+        min-width: 100px;
       }
     </style>
 
-    <app-location route="{{route}}"></app-location>
-    <app-route 
-      route="{{route}}" 
-      pattern="/:content" 
-      data="{{routeData}}" 
-      tail="{{subroute}}">
+    <app-location route='{{route}}'></app-location>
+    <app-route
+      id="article-route"
+      route='{{route}}'
+      pattern='/articles/:article'
+      data='{{routeData}}'
+      active="{{article-active}}">
     </app-route>
+    <app-route
+      id="landing-route"
+      route="{{route}}"
+      pattern="/components/AR_Website/"
+      active="{{landing-active}}">
+    </app-route>
+    <iron-ajax id="article-loader" url='/articles/[[routeData.article]].html' handle-as='text' on-response='handleRequest'></iron-ajax>
 
-    <iron-ajax url="{{path}}" handle-as="text" on-response="handleRequest"></iron-ajax>
-
-    <header><p>The Title</p></header>
+    <header>
+      <p>The Title</p>
+    </header>
     <table>
       <tr>
-        <td width="10%"><div id="left-banner">
-          
-        </div></td>
-        <td width="80%">
-          <div id="content">
-
+        <td width='10%'><div id='left-banner'></div></td>
+        <td width='80%'>
+          <!--Landing Page-->
+          <div id="landing-page" hidden="[[!landing-active]]">
+            <p>This is the landing page</p>
+            <a id="internal-link" href="/articles/test2" on-tap="handleTap">link to first article</a>
+          </div>
+          <!--Article Viewer-->
+          <div id='content' hidden="[[!article-active]]">
+            <p>blah</p>
           </div>
         </td>
-        <td width="10%"><div id="right-banner">
-          
-        </div></td>
+        <td width='10%'><div id='right-banner'></div></td>
       </tr>
     </table>
-  </template>
 
+  </template>
   <script>
 
     Polymer({
-
       is: 'AR_Website-app',
 
       observers: [
-        '_routeChanged(routeData.content)'
+
+        'articleViewHandler(article-active, route)'
       ],
 
-      attached: function (){
-        this.route = "/content/landing"
-        this._routeChanged("landing")
-        console.log("Page loaded.")
-        //this.$$('iron-ajax').generateRequest();
+      attached: function() {
+        console.log("app loaded")
       },
 
-      _routeChanged: function(route) {
-        console.log("new route "+this.route+", sending request")
-        this.path = this.route+".html"
-        console.log(this.path)
-        this.$$('iron-ajax').generateRequest();
-
-        //var resolvedPageUrl = this.resolveUrl(route+".html");
-        //this.importHref(resolvedPageUrl, null, "/content/landing.html", true);
+      articleViewHandler: function(active, route) {
+        console.log("Route changed: "+route.path)
+        if (this.$$('#article-route').active){
+          //this.$$("#content").hidden = false;
+          console.log(route.path+" is active, making request")
+          this.$$('#article-loader').generateRequest();
+        }
       },
 
-      handleRequest: function(event) {
-        //Remove existing html snippet
+      clearContent: function(){
         console.log("handling request")
-        while (this.$$('#content *') != null){
-          this.$$('#content').removeChild(this.$$('#content *'))
-        }
-        //Create new html code from received text
-        console.log(event.detail.response)
-        var div = document.createElement('div')
-        div.innerHTML = event.detail.response
-        for (x = 0; x < div.childNodes.length; x++){
-          var content = div.childNodes[x]
-          this.$$('#content').appendChild(content)
-        }
-        //Add event handlers for links
-        //this.listen(this.$$('#content-link'), 'tap', 'handleTap')
+          while (this.$$('#content *') != null){
+            this.$$('#content').removeChild(this.$$('#content *'))
+          }
       },
 
-      handleTap: function(event) {
-        //Cancel page load from link
-        //event.preventDefault();
-        //Request new html snippet
-        console.log("Loading "+this.$$('#internal-link').href)
-        this.route = this.$$('#internal-link').href
-        //this.$$('iron-ajax').generateRequest();
+      insertContent: function(response){
+        var div = document.createElement('div')
+          //var response = content
+          div.innerHTML = response
+          for (x = 0; x < div.childNodes.length; x++){
+            var content = div.childNodes[x]
+            this.$$('#content').appendChild(content)
+          }
+      },
+
+      handleRequest: function (event) {
+        console.log("handling response")
+        if (this.$$('#article-route').active) {
+          //Remove existing html snippet
+          this.clearContent();
+          //Create new html code from received text
+          this.insertContent(event.detail.response);
+        }
       }
     });
+
   </script>
 </dom-module>
