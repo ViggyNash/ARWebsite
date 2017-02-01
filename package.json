@@ -1,0 +1,30 @@
+{
+  "name": "arwebsite",
+  "version": "1.0.0",
+  "description": "my website",
+  "main": "backend.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ViggyNash/ARWebsite.git"
+  },
+  "author": "Vighnesh Sivakumar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ViggyNash/ARWebsite/issues"
+  },
+  "homepage": "https://github.com/ViggyNash/ARWebsite#readme",
+  "dependencies": {
+    "express": "^4.14.1",
+    "mongodb": "^2.2.22",
+    "body-parser": "~1.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "~1.11.0"
+  }
+}

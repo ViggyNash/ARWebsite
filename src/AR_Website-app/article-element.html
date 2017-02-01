@@ -1,0 +1,28 @@
+<link rel='import' href='../../bower_components/polymer/polymer.html'>
+<link rel='import' href='../../bower_components/iron-ajax/iron-ajax.html'>
+
+<dom-module id="article-element">
+	<template>
+		<style>
+
+		</style>
+
+		<iron-ajax 
+	  		id='article-loader' 
+		  	url='/articles/[[article]].html' 
+		  	handle-as='text' 
+		  	on-response='handleRequest'>
+		</iron-ajax>
+
+	</template>
+
+	<script>
+		Polymer({
+			is: "article-element",
+
+			attached: function () {
+				console.log("article-element loaded")
+			}
+		})
+	</script>
+</dom-module>

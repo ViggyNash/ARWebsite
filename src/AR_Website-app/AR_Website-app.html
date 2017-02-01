@@ -3,37 +3,14 @@
 <link rel='import' href='../../bower_components/app-route/app-route.html'>
 <link rel='import' href='../../bower_components/iron-ajax/iron-ajax.html'>
 
+<link rel='import' href='header-element.html'>
+
 <dom-module id='AR_Website-app'>
   <template>
 
     <style>
       /*header*/
-      header {
-        display: block;
-        padding: 20px 0;
-        padding-left: 30px;
-        background-color: rgb(220, 60, 50);
-      }
 
-      header p {
-        margin: 0;
-        font-family: Verdana, Geneva, sans-serif;
-        font-size: 30px;
-        animation: title-fadein 1s;
-        animation-fill-mode: forwards;
-      }
-
-      @keyframes title-fadein {
-        from {
-          text-shadow: none;
-          opacity:0;
-        }
-
-        to{
-          text-shadow: 0 0 2px black;
-          opacity:1;
-        }
-      }
 
       /*content*/
       table {
@@ -63,36 +40,47 @@
       }
     </style>
 
+    <iron-ajax 
+      id='test-req' 
+      url='http://localhost:9090/backend-test' 
+      handle-as='text' 
+      on-response='testRsp'
+      params='{"data":"stuff"}'>
+    </iron-ajax>
+
     <app-location route='{{route}}'></app-location>
     <app-route
-      id="article-route"
+      id='article-route'
       route='{{route}}'
       pattern='/articles/:article'
       data='{{routeData}}'
-      active="{{article-active}}">
+      active='{{article-active}}'>
     </app-route>
     <app-route
-      id="landing-route"
-      route="{{route}}"
-      pattern="/components/AR_Website/"
-      active="{{landing-active}}">
+      id='landing-route'
+      route='{{route}}'
+      pattern='/components/AR_Website/'
+      active='{{landing-active}}'>
     </app-route>
-    <iron-ajax id="article-loader" url='/articles/[[routeData.article]].html' handle-as='text' on-response='handleRequest'></iron-ajax>
+    <iron-ajax 
+      id='article-loader' 
+      url='/articles/[[routeData.article]].html' 
+      handle-as='text' 
+      on-response='handleRequest'>
+    </iron-ajax>
 
-    <header>
-      <p>The Title</p>
-    </header>
+    <header-element>The Title</header-element>
     <table>
       <tr>
         <td width='10%'><div id='left-banner'></div></td>
         <td width='80%'>
           <!--Landing Page-->
-          <div id="landing-page" hidden="[[!landing-active]]">
+          <div id='landing-page' hidden='[[!landing-active]]'>
             <p>This is the landing page</p>
-            <a id="internal-link" href="/articles/test" on-tap="handleTap">link to first article</a>
+            <a id='internal-link' href='/articles/test' on-tap='handleTap'>link to first article</a>
           </div>
           <!--Article Viewer-->
-          <div id='content' hidden="[[!article-active]]">
+          <div id='content' hidden='[[!article-active]]'>
             <p>blah</p>
           </div>
         </td>
@@ -112,20 +100,21 @@
       ],
 
       attached: function() {
-        console.log("app loaded")
+        console.log('app loaded')
+        this.$$('#test-req').generateRequest();
       },
 
       articleViewHandler: function(active, route) {
-        console.log("Route changed: "+route.path)
+        console.log('Route changed: '+route.path)
         if (this.$$('#article-route').active){
-          //this.$$("#content").hidden = false;
-          console.log(route.path+" is active, making request")
+          //this.$$('#content').hidden = false;
+          console.log(route.path+' is active, making request')
           this.$$('#article-loader').generateRequest();
         }
       },
 
       clearContent: function(){
-        console.log("handling request")
+        console.log('handling request')
           while (this.$$('#content *') != null){
             this.$$('#content').removeChild(this.$$('#content *'))
           }
@@ -142,13 +131,17 @@
       },
 
       handleRequest: function (event) {
-        console.log("handling response")
+        console.log('handling response')
         if (this.$$('#article-route').active) {
           //Remove existing html snippet
           this.clearContent();
           //Create new html code from received text
           this.insertContent(event.detail.response);
         }
+      },
+
+      testRsp: function(response) {
+        console.log('response: '+response.detail.response)
       }
     });
 
