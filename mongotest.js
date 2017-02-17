@@ -8,14 +8,15 @@ var url = 'mongodb://localhost:27017/myproject';
 MongoClient.connect(url, function(err, db) {
   assert.equal(null, err);
   console.log("Connected successfully to server");
-  insertDocuments(db, function() {
+  var col = dv.collection('')
+  /*insertDocuments(db, function() {
     findDocuments(db, function() {
       db.close();
     });
-  });
+  });*/
 });
 
-var insertDocuments = function(db, callback) {
+/*var insertDocuments = function(db, callback) {
   // Get the documents collection
   var collection = db.collection('documents');
   // Insert some documents
@@ -41,4 +42,4 @@ var findDocuments = function(db, callback) {
     console.log(docs)
     callback(docs);
   });
-}
+}*/

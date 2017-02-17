@@ -4,6 +4,7 @@
 <link rel='import' href='../../bower_components/iron-ajax/iron-ajax.html'>
 
 <link rel='import' href='header-element.html'>
+<link rel='import' href='article-element.html'>
 
 <dom-module id='AR_Website-app'>
   <template>
@@ -26,7 +27,7 @@
 
       table td:nth-child(1) {
         background-color: blue;
-        min-width: 100px;
+        min-width: 150px;
       }
 
       table td:nth-child(2) {
@@ -36,19 +37,43 @@
 
       table td:nth-child(3) {
         background-color: red;
-        min-width: 100px;
+        min-width: 150px;
+      }
+
+      @media (max-width: 600px){
+        table td:nth-child(1), table td:nth-child(3) {
+          display: none;
+        }
       }
     </style>
 
-    <iron-ajax 
-      id='test-req' 
-      url='http://localhost:9090/backend-test' 
-      handle-as='text' 
-      on-response='testRsp'
-      params='{"data":"stuff"}'>
+    <!--Request article-->
+    <iron-ajax
+      auto
+      loading="{{loading}}"
+      id='article-loader' 
+      url='http://localhost:9090/articles/[[routeData.article]].html' 
+      handle-as='json'
+      on-request='articleRequest'
+      on-response='articleResponse'>
     </iron-ajax>
 
+<!--Static Elements-->
     <app-location route='{{route}}'></app-location>
+  <!--Default Route-->
+    <app-route
+      id='landing-route'
+      route='{{route}}'
+      pattern='/'
+      active='{{landing-active}}'>
+    </app-route>
+    <app-route
+      id='landing-route-alt1'
+      route='{{route}}'
+      pattern='/index.html'
+      active='{{index-active}}'>
+    </app-route>
+  <!--Article Route-->
     <app-route
       id='article-route'
       route='{{route}}'
@@ -56,35 +81,36 @@
       data='{{routeData}}'
       active='{{article-active}}'>
     </app-route>
-    <app-route
-      id='landing-route'
-      route='{{route}}'
-      pattern='/components/AR_Website/'
-      active='{{landing-active}}'>
-    </app-route>
-    <iron-ajax 
-      id='article-loader' 
-      url='/articles/[[routeData.article]].html' 
-      handle-as='text' 
-      on-response='handleRequest'>
-    </iron-ajax>
 
+<!--Content Elements-->
     <header-element>The Title</header-element>
     <table>
       <tr>
-        <td width='10%'><div id='left-banner'></div></td>
-        <td width='80%'>
-          <!--Landing Page-->
-          <div id='landing-page' hidden='[[!landing-active]]'>
-            <p>This is the landing page</p>
-            <a id='internal-link' href='/articles/test' on-tap='handleTap'>link to first article</a>
-          </div>
-          <!--Article Viewer-->
-          <div id='content' hidden='[[!article-active]]'>
-            <p>blah</p>
+  <!--Left Banner-->
+        <td width='10%'>
+          <div id='left-banner'>
+            
           </div>
         </td>
-        <td width='10%'><div id='right-banner'></div></td>
+
+  <!--Content Section-->
+        <td width='80%'>
+    <!--Landing Page-->
+          <div id='landing-page' hidden='[[_mux_landingPage(index-active, landing-active)]]'>
+            <p>This is the landing page</p>
+            <a id='internal-link' href='/articles/test'>link to first article</a>
+          </div>
+
+    <!--Article Viewer-->
+          <article-element hidden="[[!article-active]]" article="[[routeData.article]]" active=[[article-active]]></article-element>
+        </td>
+
+  <!--Right Banner-->
+        <td width='10%'>
+          <div id='right-banner'>
+            
+          </div>
+        </td>
       </tr>
     </table>
 
@@ -95,53 +121,33 @@
       is: 'AR_Website-app',
 
       observers: [
-
-        'articleViewHandler(article-active, route)'
+        "articleRequest(routeData.article)"
       ],
 
       attached: function() {
         console.log('app loaded')
-        this.$$('#test-req').generateRequest();
+        //this.$$('#test-req').generateRequest();
       },
 
-      articleViewHandler: function(active, route) {
-        console.log('Route changed: '+route.path)
-        if (this.$$('#article-route').active){
-          //this.$$('#content').hidden = false;
-          console.log(route.path+' is active, making request')
-          this.$$('#article-loader').generateRequest();
+      articleRequest: function(article) {
+        if(this.articleActive){
+          this.$$('article-element').clearContent()
+          console.log("sending request for article named '"+article+"'")
+          this.$$('#article-loader').generateRequest()
         }
       },
-
-      clearContent: function(){
-        console.log('handling request')
-          while (this.$$('#content *') != null){
-            this.$$('#content').removeChild(this.$$('#content *'))
-          }
+      
+      articleResponse: function(event) {
+        var res = event.detail.response[0]
+        this.$$('article-element').content = res.content
       },
 
-      insertContent: function(response){
-        var div = document.createElement('div')
-          //var response = content
-          div.innerHTML = response
-          for (x = 0; x < div.childNodes.length; x++){
-            var content = div.childNodes[x]
-            this.$$('#content').appendChild(content)
-          }
-      },
-
-      handleRequest: function (event) {
-        console.log('handling response')
-        if (this.$$('#article-route').active) {
-          //Remove existing html snippet
-          this.clearContent();
-          //Create new html code from received text
-          this.insertContent(event.detail.response);
+      _mux_landingPage: function(index, landing){
+        if(index || landing){
+          console.log(index+" "+landing)
+          return false
         }
-      },
-
-      testRsp: function(response) {
-        console.log('response: '+response.detail.response)
+        else return true
       }
     });
 

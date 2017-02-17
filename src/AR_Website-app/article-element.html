@@ -2,27 +2,65 @@
 <link rel='import' href='../../bower_components/iron-ajax/iron-ajax.html'>
 
 <dom-module id="article-element">
-	<template>
-		<style>
+    <template>
+        <style>
 
-		</style>
+        </style>
 
-		<iron-ajax 
-	  		id='article-loader' 
-		  	url='/articles/[[article]].html' 
-		  	handle-as='text' 
-		  	on-response='handleRequest'>
-		</iron-ajax>
+        <!--iron-ajax 
+            id='article-loader' 
+            url='/articles/[[article]].html' 
+            handle-as='text' 
+            on-response='handleRequest'>
+        </iron-ajax-->
 
-	</template>
+        <div id="content">
+            
+        </div>
 
-	<script>
-		Polymer({
-			is: "article-element",
+    </template>
 
-			attached: function () {
-				console.log("article-element loaded")
-			}
-		})
-	</script>
+    <script>
+        Polymer({
+            is: "article-element",
+
+            observers: [
+                //"sendRequest(active, article)",
+                "swapContent(content)"
+            ],
+
+            attached: function () {
+                console.log("article-element loaded")
+            },
+
+            sendRequest: function(active) {
+                if(active) this.$$('#article-loader').generateRequest()  
+                else this.clearContent()
+            },
+
+            clearContent: function() {
+                while (this.$$('#content *') != null){
+                    this.$$('#content').removeChild(this.$$('#content *'))
+                }
+            },
+
+            insertContent: function(response){
+                var div = document.createElement('div')
+                //var response = content
+                div.innerHTML = response
+                for (x = 0; x < div.childNodes.length; x++){
+                    var content = div.childNodes[x]
+                    this.$$('#content').appendChild(content)
+                }
+            },
+
+            swapContent: function (content) {
+                console.log('handling response')
+                //Remove existing html snippet
+                this.clearContent();
+                //Create new html code from received text
+                this.insertContent(content);
+            },
+        })
+    </script>
 </dom-module>
